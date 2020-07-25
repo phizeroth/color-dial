@@ -1,0 +1,4 @@
+.vscode/
+app/node_modules
+photon_firmware*
+lib/

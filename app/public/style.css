@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css?family=Share+Tech+Mono');
+
+html, body {
+    display: flex;
+    background: #222;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+#container {
+    display: flex;
+    width: 100%;
+    height: 33%;
+    min-height: 240px;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    background-image: url('light-wool.png')
+}
+
+#contents {
+    width: 425px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 300%;
+    color: #ddd;
+    background-color: #222;
+    text-align: center;
+    align-items: center;
+    vertical-align: -webkit-baseline-middle;
+    border-radius: 8px;
+}
+
+#name {
+    font-size: 50%;
+    padding: 16px 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+#rgb {
+    padding: 8px;
+}
+#r {
+    display: inline;
+    color: #e22;
+}
+
+#g {
+    display: inline;
+    color: #2e2;
+}
+
+#b {
+    display: inline;
+    color: #33f;
+}
+
+@media screen and (orientation: portrait) {
+    #container {
+        height: 25%;
+    }
+    #contents {
+        width: 80%;
+        font-size: 600%;
+    }
+
+    #name {
+        font-size: 50%;
+    }
+}

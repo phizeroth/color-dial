@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <title>Finch's Color-O-Matic Gizmo</title>
+    <link href="style.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.0/angular.min.js"></script>
+    <script src="https://cdn.firebase.com/libs/angularfire/2.3.0/angularfire.min.js"></script>
+    <script src="index.js"></script>
+
+  </head>
+  <body ng-controller="Ctrl">
+    <div id="container" ng-style="{'background-color': 'rgb(' + data.r + ',' + data.g + ',' + data.b +')'}">
+      <div id="contents">
+        <div id="name">
+          Finch's Color-O-Matic Gizmo
+        </div>
+        <div id="rgb">
+          <div id="r">{{ data.r }}</div> : <div id="g">{{ data.g }}</div> : <div id="b">{{ data.b }}</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
