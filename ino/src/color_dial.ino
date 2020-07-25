@@ -24,21 +24,21 @@ const byte rs = D0, en = D1, lcdD4 = D2, lcdD5 = D3, lcdD6 = D4, lcdD7 = D5;
 LiquidCrystal lcd(rs, en, lcdD4, lcdD5, lcdD6, lcdD7);
 
 // Pot stuff
-const byte pinPots[] = { A3, A4, A5 };
-const int numReadings = 10;
+const byte pinPots[] = { A5, A4, A3 };
+const int NUM_READINGS = 10;
 
 // Button stuff
-const byte buttonPin = D7;
+const byte BUTTON_PIN = D7;
 int buttonState = HIGH;
 
 int lastButtonState = HIGH;
-const byte debounceDelay = 50;
+const byte DEBOUNCE_PERIOD_MS = 50;
 uint32_t lastDebounceTime = millis();
 
 // LED stuff
-const byte ledPin = D6;
-const byte numLEDs = 2;
-Adafruit_NeoPixel neo(numLEDs, ledPin);
+const byte LED_PIN = D6;
+const byte NUM_LEDS = 2;
+Adafruit_NeoPixel neo(NUM_LEDS, LED_PIN);
 
 // Mode toggles
 byte colorMode = 0;   // 0: RGB, 1: HSV, 2: RAW
@@ -50,7 +50,7 @@ byte symbolDot[] = { 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00 };
 
 class Pot {
     int pin;
-    int readings[numReadings];
+    int readings[NUM_READINGS];
     int readIndex;
     int total;
     int average;
@@ -58,7 +58,7 @@ class Pot {
     public:
     Pot(byte potPin) {
         pin = potPin;
-        for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+        for (int thisReading = 0; thisReading < NUM_READINGS; thisReading++) {
             readings[thisReading] = 0;
         }
         readIndex = 0;
@@ -72,11 +72,11 @@ class Pot {
         total = total + readings[readIndex];
         readIndex = readIndex + 1;
 
-        if (readIndex >= numReadings) {
+        if (readIndex >= NUM_READINGS) {
             readIndex = 0;
         }
 
-        average = total / numReadings;
+        average = total / NUM_READINGS;
         if (mode == 2) {
             return average;
         } else {
@@ -87,12 +87,13 @@ class Pot {
 };
 
 Pot pots[] = {
-    Pot(pinPots[0]),
-    Pot(pinPots[1]),
-    Pot(pinPots[2])
+    Pot(pinPots[0]),    // r
+    Pot(pinPots[1]),    // g
+    Pot(pinPots[2])     // b
 };
 
-const byte numPots = 3;
+const byte NUM_POTS = 3;
+
 int raw[] = {0, 0, 0};
 int vals[] = {0, 0, 0};
 int valsDisplayed[] = {0, 0, 0};
@@ -102,7 +103,7 @@ void setup() {
 
     Serial.begin(9600);
 
-    pinMode(buttonPin, INPUT_PULLUP);
+    pinMode(BUTTON_PIN, INPUT_PULLUP);
 
     neo.begin();
     neo.clear();
@@ -114,12 +115,11 @@ void setup() {
     lcd.createChar(1, symbolDot);
 
     Particle.function("setColorMode", setColorMode);    // accepts "rgb", "hsv", or "raw"
-//    Particle.function("setBrightness", setBrightness);  // 0-255
 }
 
 void loop() {
 
-    for (byte i = 0; i < numPots; i++) {
+    for (byte i = 0; i < NUM_POTS; i++) {
         vals[i] = pots[i].smooth();
     }
 
@@ -158,7 +158,7 @@ void loop() {
 
     } else if (colorMode == 2) {                // if in raw mode
 
-        for (byte i = 0; i < numPots; i++) {
+        for (byte i = 0; i < NUM_POTS; i++) {
             raw[i] = pots[i].smooth(2);
         }
 
@@ -192,7 +192,7 @@ void display(int *arr) {
             lcd.setCursor(10, 1); lcd.print(arr[2]);
             lcd.setCursor(15, 0); lcd.write(0);
 
-            for (byte i = 0; i < numPots; i++) {
+            for (byte i = 0; i < NUM_POTS; i++) {
                 valsDisplayed[i] = arr[i];
             }
         }
@@ -221,14 +221,8 @@ int8_t setColorMode(String s) {
     return colorMode;
 }
 
-/* byte setBrightness(String s) {
-    byte br = constrain(s.toInt(), 0, 255);
-    neo.setBrightness(br);
-    return br;
-} */
-
 void showNeo(int *vals) {
-    for (byte i = 0; i < numLEDs; i++) {
+    for (byte i = 0; i < NUM_LEDS; i++) {
         neo.setPixelColor(i, vals[0], vals[1], vals[2]);
         neo.show();
     }
@@ -236,7 +230,7 @@ void showNeo(int *vals) {
 
 /*void button() {
     uint32_t timeElapsed;
-    buttonState = digitalRead(buttonPin);
+    buttonState = digitalRead(BUTTON_PIN);
     if (buttonState == LOW) {
         displayMode = 1;
         timeElapsed = millis() - lastDebounceTime;
@@ -250,7 +244,7 @@ void showNeo(int *vals) {
 }*/
 
 void debounce() {
-  int buttonReading = digitalRead(buttonPin);
+  int buttonReading = digitalRead(BUTTON_PIN);
 
   if (buttonReading != lastButtonState) {
     lastDebounceTime = millis();
@@ -258,7 +252,7 @@ void debounce() {
 
   uint32_t timeElapsed = millis() - lastDebounceTime;
 
-  if (timeElapsed > debounceDelay) {
+  if (timeElapsed > DEBOUNCE_PERIOD_MS) {
     if (buttonReading != buttonState) {
       buttonState = buttonReading;
       if (buttonState == LOW) {
@@ -280,7 +274,7 @@ void publishData(int *vals) {
             snprintf(buf, sizeof(buf), "{\"r\":%d,\"g\":%d,\"b\":%d}", vals[0], vals[1], vals[2]);
             Particle.publish(PUBLISH_EVENT_NAME, buf, PRIVATE);
             
-            for (byte i = 0; i < numPots; i++) {
+            for (byte i = 0; i < NUM_POTS; i++) {
                 valsPublished[i] = vals[i];
             }
         }
@@ -289,7 +283,7 @@ void publishData(int *vals) {
 }
 
 boolean valChange(int *arr1, int *arr2) {
-    for (byte i = 0; i < numPots; i++) {
+    for (byte i = 0; i < NUM_POTS; i++) {
         if (abs(arr2[i] - arr1[i]) >= 2) {
             // Serial.printf("%d | %d  CHANGE\n", arr1[1], arr2[1]);
             return true;
